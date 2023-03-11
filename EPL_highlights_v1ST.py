@@ -4,6 +4,7 @@ from youtubesearchpython import *
 import datetime
 from colorama import Fore
 import streamlit as st
+import feedparser
 
 
 tableList = []
@@ -93,7 +94,7 @@ def getGames2(tableList,dateRange):
 
 
 
-    getYTLinks(hotList)
+    getRSSLinks(hotList)
             
 def getPremTable():
 
@@ -131,10 +132,30 @@ def getYTLinks(hotList):
     print ("\n")
     #st.write("\n")
 
+def getRSSLinks(hotList):
+    rss_url = "https://www.youtube.com/feeds/videos.xml?channel_id=UCD2lJITnvzflNhOqQckMpQg"
+    feed = feedparser.parse(rss_url)
+    
+    
+    
+    
+    for team in hotList:
+        for entry in feed.entries[:15]:
+            if team[0] and team[1] in entry.title:
+                #print(entry.title, entry.link)
+                gamesAndLinks[entry.title] = entry.link
+
+    st.write("******** List of Games to watch! ********")
+    for key, value in gamesAndLinks.items():
+        test = "{}: {}".format(key, value)
+        st.write(test)
+  
+
+
+
 
 
 getPremTable()
-#dateRange
 
 if st.button("Today"):
     dateRange = 0
@@ -150,7 +171,6 @@ if st.button("Last week"):
     getGames2(tableList,dateRange)
     
 
-#input()
 
 
 
