@@ -1,6 +1,6 @@
 youtube-search-python
 datetime
 colorama
-beautifulsoup4==4.11.2
+beautifulsoup4==4.11.0
 
 
