@@ -2,5 +2,5 @@ youtube-search-python
 datetime
 colorama
 beautifulsoup4
-
+feedparser
 
