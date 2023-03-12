@@ -1,6 +1,5 @@
 datetime
 beautifulsoup4
 feedparser
-re
 
 
