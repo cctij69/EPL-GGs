@@ -55,7 +55,7 @@ def getGames(tableList,url,dateRange,today):
     page = urlopen(url)
     html = page.read().decode("utf-8")
     soup = BeautifulSoup(html, "html.parser")
-   
+    st.write(url)
 
 
     if dateRange == 0:
@@ -98,6 +98,7 @@ def getGames(tableList,url,dateRange,today):
         elif item[1] in tableList:
             if item not in hotList:
                 hotList.append(item)
+    st.write(hotList)
 
 def getPremTable():
 
@@ -124,7 +125,7 @@ def getRSSLinks(hotList,dateRange):
         listOfWeeks.append(match)
     max_num = max(map(lambda x: int(re.findall('\d+', x)[0]), listOfWeeks))
     
-    
+    st.write(hotList)
     for team in hotList:
         for entry in feed.entries[:15]:
             if dateRange == 2:
@@ -140,8 +141,8 @@ def getRSSLinks(hotList,dateRange):
 
     st.write("******** List of Games to watch! ********")
     for key, value in gamesAndLinks.items():
-        test = "{}: {}".format(key, value)
-        st.write(test)
+        output = "{}: {}".format(key, value)
+        st.write(output)
 
 
 
