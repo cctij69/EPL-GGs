@@ -123,7 +123,6 @@ def getRSSLinks(hotList,dateRange):
         listOfWeeks.append(match)
     max_num = max(map(lambda x: int(re.findall('\d+', x)[0]), listOfWeeks))
     
-    st.write(hotList)
     for team in hotList:
         for entry in feed.entries[:15]:
             if dateRange == 2:
