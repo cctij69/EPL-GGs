@@ -55,7 +55,6 @@ def getGames(tableList,url,dateRange,today):
     page = urlopen(url)
     html = page.read().decode("utf-8")
     soup = BeautifulSoup(html, "html.parser")
-    st.write(url)
 
 
     if dateRange == 0:
@@ -98,7 +97,6 @@ def getGames(tableList,url,dateRange,today):
         elif item[1] in tableList:
             if item not in hotList:
                 hotList.append(item)
-    st.write(hotList)
 
 def getPremTable():
 
