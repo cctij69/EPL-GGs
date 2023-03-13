@@ -49,6 +49,7 @@ def figureOutDate(tableList,dateRange):
     else:
         url = "https://areyouwatchingthis.com/soccer/games"
         getGames(tableList,url,dateRange,today)
+        return dateRange
 
 def getGames(tableList,url,dateRange,today):
     page = urlopen(url)
@@ -128,11 +129,11 @@ def getRSSLinks(hotList,dateRange):
         for entry in feed.entries[:15]:
             if dateRange == 2:
                 if team[0] and team[1] in entry.title:
-                    gamesAndLinks[entry.title] = [entry.link]
+                    gamesAndLinks[entry.title] = entry.link
             else:
                 if team[0] and team[1] in entry.title:
                     if str(max_num) in entry.title:
-                        gamesAndLinks[entry.title] = [entry.link]
+                        gamesAndLinks[entry.title] = entry.link
 
 
 
@@ -151,16 +152,16 @@ getPremTable()
 
 if st.button("Today"):
     dateRange = 0
-    figureOutDate(tableList,dateRange)
+    dateRange = figureOutDate(tableList,dateRange)
 
 if st.button("This week"):
     dateRange = 1
-    figureOutDate(tableList,dateRange)
+    dateRange = figureOutDate(tableList,dateRange)
 
 
 if st.button("All recent"):
     dateRange = 2
-    figureOutDate(tableList,dateRange)
+    dateRange = figureOutDate(tableList,dateRange)
     
 
 if not hotList:
