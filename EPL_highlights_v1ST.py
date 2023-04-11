@@ -120,7 +120,6 @@ def getGames(tableList,url,dateRange,today):
                 hotList.append(item)
 
 
-
 def getPremTable():
 
    
@@ -153,16 +152,26 @@ def getRSSLinks(hotList,dateRange):
                 max_week = week
 
 
-    
     for team in hotList:
         for entry in feed.entries[:15]:
             if dateRange == 2:
-                if team[0] and team[1] in entry.title:
-                    gamesAndLinks[entry.title] = entry.link
-            else:
-                if team[0] and team[1] in entry.title:
-                    if str(max_week) in entry.title:
+                if team[0] in entry.title:
+                    if team[1] in entry.title:
                         gamesAndLinks[entry.title] = entry.link
+                if team[1] in entry.title:
+                    if team[0] in entry.title:
+                        gamesAndLinks[entry.title] = entry.link
+
+
+            else:
+                if team[0] in entry.title:
+                    if team[1] in entry.title:
+                        if str(max_week) in entry.title:
+                            gamesAndLinks[entry.title] = entry.link
+                if team[1] in entry.title:
+                    if team[0] in entry.title:
+                        if str(max_week) in entry.title:
+                            gamesAndLinks[entry.title] = entry.link
 
 
 
