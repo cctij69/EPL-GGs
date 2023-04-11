@@ -12,6 +12,27 @@ gamesAndLinks = {}
 listOfGames = []
 dateRange = 0
 
+
+
+hide_menu_style = """
+        <style>
+        #MainMenu {visibility: hidden;}
+        </style>
+        """
+st.markdown(hide_menu_style, unsafe_allow_html=True)
+
+
+
+
+htp="https://raw.githubusercontent.com/cctij69/EPL-GGs/main/Footy_logo.png" 
+st.image(htp, width=350)
+
+
+
+
+
+
+
 def figureOutDate(tableList,dateRange):
     
     today = datetime.date.today()
@@ -37,7 +58,6 @@ def figureOutDate(tableList,dateRange):
 
 
 
-
     if dateRange == 2:
         print ("Processing.....")
         url = "https://areyouwatchingthis.com/soccer/games?date={}".format(last_monday)
@@ -50,12 +70,13 @@ def figureOutDate(tableList,dateRange):
         url = "https://areyouwatchingthis.com/soccer/games"
         getGames(tableList,url,dateRange,today)
         return dateRange
+    
+
 
 def getGames(tableList,url,dateRange,today):
     page = urlopen(url)
     html = page.read().decode("utf-8")
     soup = BeautifulSoup(html, "html.parser")
-
 
     if dateRange == 0:
         for header in soup.findAll('h3'):
@@ -89,7 +110,7 @@ def getGames(tableList,url,dateRange,today):
                 content = [item.text.strip() for p in a_list for item in p]
                     
                     
-                listOfGames.append(content)                
+                listOfGames.append(content)    
 
     for item in listOfGames:
         if item[0] in tableList:
@@ -97,6 +118,8 @@ def getGames(tableList,url,dateRange,today):
         elif item[1] in tableList:
             if item not in hotList:
                 hotList.append(item)
+
+
 
 def getPremTable():
 
@@ -115,13 +138,21 @@ def getRSSLinks(hotList,dateRange):
     rss_url = "https://www.youtube.com/feeds/videos.xml?channel_id=UCD2lJITnvzflNhOqQckMpQg"
     feed = feedparser.parse(rss_url)
     
-    listOfWeeks=[]
+    max_week = 0
     for entry in feed.entries[:15]:
         string = entry.title
-        pattern = r"(?<=\|).*?(?=\|)"
-        match = max(re.findall(pattern, string), key=lambda x: int(re.sub(r'\D', '', x)))
-        listOfWeeks.append(match)
-    max_num = max(map(lambda x: int(re.findall('\d+', x)[0]), listOfWeeks))
+
+        # Extract the week number from entry.title using a regular expression pattern
+        pattern = r"\bWeek (\d+)\b"
+        match = re.search(pattern, entry.title)
+        if match:
+            # Extract the week number from the match object and convert to integer
+            week = int(match.group(1))
+            # Update the max_week if the current week is higher
+            if week > max_week:
+                max_week = week
+
+
     
     for team in hotList:
         for entry in feed.entries[:15]:
@@ -130,7 +161,7 @@ def getRSSLinks(hotList,dateRange):
                     gamesAndLinks[entry.title] = entry.link
             else:
                 if team[0] and team[1] in entry.title:
-                    if str(max_num) in entry.title:
+                    if str(max_week) in entry.title:
                         gamesAndLinks[entry.title] = entry.link
 
 
@@ -163,7 +194,7 @@ if st.button("All recent"):
     
 
 if not hotList:
-    print("No good games found!")
+    st.write("No good games found!")
 else:
     getRSSLinks(hotList,dateRange)
 
