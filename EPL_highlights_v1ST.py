@@ -10,7 +10,6 @@ tableList = []
 hotList = []
 gamesAndLinks = {}
 listOfGames = []
-dateRange = 0
 
 
 
@@ -33,7 +32,7 @@ st.image(htp, width=350)
 
 
 
-def figureOutDate(tableList,dateRange):
+def figureOutDate(tableList):
     
     today = datetime.date.today()
     target_dayofweek = 0  
@@ -58,59 +57,36 @@ def figureOutDate(tableList,dateRange):
 
 
 
-    if dateRange == 2:
-        print ("Processing.....")
-        url = "https://areyouwatchingthis.com/soccer/games?date={}".format(last_monday)
-        getGames(tableList,url,dateRange,today)
-        url = "https://areyouwatchingthis.com/soccer/games?date={}".format(last_mondayPlusOne)
-        getGames(tableList,url,dateRange,today)
-        return dateRange
+    url = "https://areyouwatchingthis.com/soccer/games?date={}".format(last_monday)
+    getGames(tableList,url,today)
+    url = "https://areyouwatchingthis.com/soccer/games?date={}".format(last_mondayPlusOne)
+    getGames(tableList,url,today)
 
+    if not hotList:
+        st.write("No good games found!")
     else:
-        url = "https://areyouwatchingthis.com/soccer/games"
-        getGames(tableList,url,dateRange,today)
-        return dateRange
-    
+        getRSSLinks(hotList)
 
-
-def getGames(tableList,url,dateRange,today):
+def getGames(tableList,url,today):
     page = urlopen(url)
     html = page.read().decode("utf-8")
     soup = BeautifulSoup(html, "html.parser")
-
-    if dateRange == 0:
-        for header in soup.findAll('h3'):
-            headerText = header.text
-            if str(today.day) in headerText:
-                ul = header.findNext('ul')
-                for test in ul.find_all('li', {'class': 'high'}):
-                    a_list = [test.find_all("a", {"class": "team"})]
-                    content = [item.text.strip() for p in a_list for item in p]
-
-                    listOfGames.append(content)
+                    
+    for header in soup.findAll('h3'):
+        ul = header.findNext('ul')
+        for test in ul.find_all('li', {'class': 'high'}):
+            a_list = [test.find_all("a", {"class": "team"})]
+            content = [item.text.strip() for p in a_list for item in p]
                 
-                for test in ul.find_all('li', {'class': 'severe'}):
-                    a_list = [test.find_all("a", {"class": "team"})]
-                    content = [item.text.strip() for p in a_list for item in p]
+                
+            listOfGames.append(content)
 
-                    listOfGames.append(content)                    
-                    
-    elif dateRange > 0:
-        for header in soup.findAll('h3'):
-            ul = header.findNext('ul')
-            for test in ul.find_all('li', {'class': 'high'}):
-                a_list = [test.find_all("a", {"class": "team"})]
-                content = [item.text.strip() for p in a_list for item in p]
-                    
-                    
-                listOfGames.append(content)
-
-            for test in ul.find_all('li', {'class': 'severe'}):
-                a_list = [test.find_all("a", {"class": "team"})]
-                content = [item.text.strip() for p in a_list for item in p]
-                    
-                    
-                listOfGames.append(content)    
+        for test in ul.find_all('li', {'class': 'severe'}):
+            a_list = [test.find_all("a", {"class": "team"})]
+            content = [item.text.strip() for p in a_list for item in p]
+                
+                
+            listOfGames.append(content)    
 
     for item in listOfGames:
         if item[0] in tableList:
@@ -118,7 +94,6 @@ def getGames(tableList,url,dateRange,today):
         elif item[1] in tableList:
             if item not in hotList:
                 hotList.append(item)
-
 
 def getPremTable():
 
@@ -133,7 +108,7 @@ def getPremTable():
     for entry in entries[7:]:
         tableList.append(entry['title'])
 
-def getRSSLinks(hotList,dateRange):
+def getRSSLinks(hotList):
     rss_url = "https://www.youtube.com/feeds/videos.xml?channel_id=UCD2lJITnvzflNhOqQckMpQg"
     feed = feedparser.parse(rss_url)
     
@@ -154,24 +129,19 @@ def getRSSLinks(hotList,dateRange):
 
     for team in hotList:
         for entry in feed.entries[:15]:
-            if dateRange == 2:
-                if team[0] in entry.title:
-                    if team[1] in entry.title:
-                        gamesAndLinks[entry.title] = entry.link
+            if team[0] in entry.title:
                 if team[1] in entry.title:
-                    if team[0] in entry.title:
+                    if str(max_week) in entry.title:
+                        gamesAndLinks[entry.title] = entry.link
+            if team[1] in entry.title:
+                if team[0] in entry.title:
+                    if str(max_week) in entry.title:
                         gamesAndLinks[entry.title] = entry.link
 
+    
 
-            else:
-                if team[0] in entry.title:
-                    if team[1] in entry.title:
-                        if str(max_week) in entry.title:
-                            gamesAndLinks[entry.title] = entry.link
-                if team[1] in entry.title:
-                    if team[0] in entry.title:
-                        if str(max_week) in entry.title:
-                            gamesAndLinks[entry.title] = entry.link
+
+
 
 
 
@@ -187,25 +157,11 @@ def getRSSLinks(hotList,dateRange):
 
 getPremTable()
 
-
-if st.button("Today"):
-    dateRange = 0
-    dateRange = figureOutDate(tableList,dateRange)
-
-if st.button("This week"):
-    dateRange = 1
-    dateRange = figureOutDate(tableList,dateRange)
-
-
-if st.button("All recent"):
-    dateRange = 2
-    dateRange = figureOutDate(tableList,dateRange)
+if st.button("Update list"):
+    figureOutDate(tableList)
     
 
-if not hotList:
-    st.write("No good games found!")
-else:
-    getRSSLinks(hotList,dateRange)
+
 
 
 
