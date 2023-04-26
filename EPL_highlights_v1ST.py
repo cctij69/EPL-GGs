@@ -32,9 +32,8 @@ st.image(htp, width=350)
 
 
 
-def figureOutDate(tableList):
+def figureOutDate(tableList,country):
     
-    today = datetime.date.today()
     target_dayofweek = 0  
     current_dayofweek = datetime.datetime.now().weekday() # Today
 
@@ -58,16 +57,16 @@ def figureOutDate(tableList):
 
 
     url = "https://areyouwatchingthis.com/soccer/games?date={}".format(last_monday)
-    getGames(tableList,url,today)
+    getGames(tableList,url)
     url = "https://areyouwatchingthis.com/soccer/games?date={}".format(last_mondayPlusOne)
-    getGames(tableList,url,today)
+    getGames(tableList,url)
 
     if not hotList:
         st.write("No good games found!")
     else:
-        getRSSLinks(hotList)
+        getRSSLinks(hotList,country)
 
-def getGames(tableList,url,today):
+def getGames(tableList,url):
     page = urlopen(url)
     html = page.read().decode("utf-8")
     soup = BeautifulSoup(html, "html.parser")
@@ -108,8 +107,11 @@ def getPremTable():
     for entry in entries[7:]:
         tableList.append(entry['title'])
 
-def getRSSLinks(hotList):
-    rss_url = "https://www.youtube.com/feeds/videos.xml?channel_id=UCD2lJITnvzflNhOqQckMpQg"
+def getRSSLinks(hotList,country):
+    if country == 1:
+        rss_url = "https://www.youtube.com/feeds/videos.xml?channel_id=UCD2lJITnvzflNhOqQckMpQg"
+    elif country == 2:
+        rss_url = "https://www.youtube.com/feeds/videos.xml?playlist_id=PLISuFiQTdKDWuKYvHa2f4SxSQCK18dgCy"
     feed = feedparser.parse(rss_url)
     
     max_week = 0
@@ -126,17 +128,40 @@ def getRSSLinks(hotList):
             if week > max_week:
                 max_week = week
 
-
-    for team in hotList:
-        for entry in feed.entries[:15]:
-            if team[0] in entry.title:
-                if team[1] in entry.title:
-                    if str(max_week) in entry.title:
-                        gamesAndLinks[entry.title] = entry.link
-            if team[1] in entry.title:
+    if country < 2:
+        for team in hotList:
+            for entry in feed.entries[:15]:
                 if team[0] in entry.title:
-                    if str(max_week) in entry.title:
-                        gamesAndLinks[entry.title] = entry.link
+                    if team[1] in entry.title:
+                        if str(max_week) in entry.title:
+                            gamesAndLinks[entry.title] = entry.link
+                if team[1] in entry.title:
+                    if team[0] in entry.title:
+                        if str(max_week) in entry.title:
+                            gamesAndLinks[entry.title] = entry.link
+    else:
+        for team in hotList:
+            for entry in feed.entries[:15]:
+                if "United" in team[0]:
+                    teamSplit = team[0].split(" ")
+                    team[0] = teamSplit[0]
+                if "United" in team[1]:
+                    teamSplit = team[1].split(" ")
+                    team[1] = teamSplit[0]
+                if "City" in team[0]:
+                    teamSplit = team[0].split(" ")
+                    team[0] = teamSplit[0]
+                if "City" in team[1]:
+                    teamSplit = team[1].split(" ")
+                    team[1] = teamSplit[0]
+
+
+                if team[0] in entry.title:
+                    if team[1] in entry.title:
+                            gamesAndLinks[entry.title] = entry.link
+                if team[1] in entry.title:
+                    if team[0] in entry.title:
+                            gamesAndLinks[entry.title] = entry.link
 
     
 
@@ -157,8 +182,13 @@ def getRSSLinks(hotList):
 
 getPremTable()
 
-if st.button("Update list"):
-    figureOutDate(tableList)
+
+if st.button("Canada"):
+    country = 1
+    figureOutDate(tableList,country)
+if st.button("UK"):
+    country = 2
+    figureOutDate(tableList,country)
     
 
 
