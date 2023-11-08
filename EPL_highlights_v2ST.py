@@ -94,21 +94,26 @@ def calculateGGs(country):
                 red_cards = linked_soup.find_all('img', src='img/football/red.png')
                 count_red_images = len(red_cards)
 
-        
+                tags = []
 
                 # Calculate good games
                 if int(tg) > 2:
                     goodGame = True
+                    tags.append("Goals!")
                 if surpriseValue is None:
                     pass
                 else:                    
                     if int(float(surpriseValue)) > 49:
-                        goodGame = True   
+                        goodGame = True
+                        tags.append("Surprising result!")  
                 if count_red_images > 0:
+                    st.write("YES!")
                     goodGame = True
+                    tags.append("Red card!")
                 
                 content.append(team1)
                 content.append(team2)
+                content.append(' '.join(tags))
                 if goodGame == True:
                     hotList.append(content)
 
@@ -158,10 +163,14 @@ def getRSSLinks(hotList,country):
                     team[1] = teamSplit[0]
                 if team[0] in entry.title:
                     if team[1] in entry.title:
-                        gamesAndLinks[entry.title] = entry.link
+                        #gamesAndLinks[entry.title] = entry.link
+                        gamesAndLinks[entry.title] = {team[2]: entry.link}
+
                 if team[1] in entry.title:
                     if team[0] in entry.title:
-                        gamesAndLinks[entry.title] = entry.link
+                        #gamesAndLinks[entry.title] = entry.link
+                        gamesAndLinks[entry.title] = {team[2]: entry.link}
+
     else:
         for team in hotList:
             for entry in feed.entries[:15]:
@@ -184,14 +193,16 @@ def getRSSLinks(hotList,country):
                     teamSplit = team[1].split(" ")
                     team[1] = teamSplit[0]
 
-
+                
                 if team[0] in entry.title:
                     if team[1] in entry.title:
-                            gamesAndLinks[entry.title] = entry.link
+                            #gamesAndLinks[entry.title] = entry.link
+                            gamesAndLinks[entry.title] = {team[2]: entry.link}
+
                 if team[1] in entry.title:
                     if team[0] in entry.title:
-                            gamesAndLinks[entry.title] = entry.link
-
+                            #gamesAndLinks[entry.title] = entry.link
+                            gamesAndLinks[entry.title] = {team[2]: entry.link}
     
 
 
@@ -202,8 +213,16 @@ def getRSSLinks(hotList,country):
 
     st.write("******** List of Games to watch! ********")
     for key, value in gamesAndLinks.items():
-        output = "{}: {}".format(key, value)
-        st.write(output)
+        #output = "{}: {}".format(key, value)
+        st.write(key)
+        for sub_key, sub_value in value.items():
+            output = "{}: {}".format(sub_key, sub_value)
+            #st.write(output)
+            st.write("<b>{}</b> : {}".format(sub_key, sub_value),unsafe_allow_html=True)
+        st.write("\n")
+        st.write("\n")
+
+    
 
 
 
